@@ -1,0 +1,75 @@
+; compile e.g. with https://wokwi.com/tools/pioasm
+
+
+.program ws2811Receiver
+.side_set 1 opt
+
+; This is run from C
+; set y 20
+; mov osr y
+; out null 5 ; osr = 20 * 2^5 = 640 -> 640*2*8ns = 10240ns
+
+.wrap_target
+sopt_wait_bit_start:
+    mov y osr                      side 0
+sopt_wait_bit_loop:
+    jmp pin sopt_handle_bit        side 0
+    jmp y-- sopt_wait_bit_loop     side 0
+    ; RESET
+
+reset:
+    ; Set x to number of bits to read
+PUBLIC num_bits_const_1:
+    set x 24                       side 0
+    mov isr x        [7]           side 1
+PUBLIC num_bits_shift_1:
+    in null 1                      side 0   ; shift left 1 times
+    
+    mov x isr                      side 0   ; x = 24 * 2^1 = 48
+    mov isr null                   side 0   ; reset shift counter
+    jmp x-- consume_wait_bit_start side 0   ; y = 47
+
+consume_wait_bit_start:
+    mov y osr  side 0
+consume_wait_bit_loop:
+    jmp pin consume_handle_bit     side 0   ; start of bit detected
+    jmp y-- consume_wait_bit_loop  side 0   ; loop until a reset pulse is detected
+  
+    ; some bits/leds might not have been read yet
+    ; push number of unread bits to isr if at least 1 bit has already been pushed
+PUBLIC num_bits_const_2:
+    set y 24  side 0
+    mov isr y side 0
+PUBLIC num_bits_shift_2:
+    in null 1  side 0; shift left 1 times
+    mov y isr   side 0; x = 24 * 2^1 = 48
+    jmp y-- tmp  side 0
+tmp:
+    jmp x!=y push_remaining_bits_loop  side 0
+    jmp reset  side 0
+push_remaining_bits_loop:
+    irq set 2                      side 0   ; signal caller that error occurred while receiving bits
+;    in null 1  side 0
+;    jmp x-- push_remaining_bits_loop  side 0
+    jmp reset  side 0
+
+consume_handle_bit:
+    ;irq set 3                      side 0    
+    set y 5                    [7] side 1  ; 8 cycles
+delay_loop:                                ; + 6*(
+    nop                        [4] side 0  ;     5 cycles
+    jmp y-- delay_loop         [3] side 0  ;   + 4 cycles) = 60 cycles -> 60*8ns = 480ns
+    
+    ; now check if this is a 1 or 0 bit
+    in pins 1                      side 0  ; shift 1 or 0 into result
+    wait 0 pin 0                   side 0  ;
+    jmp x-- consume_wait_bit_start side 0  ; read next bit
+    ; ALL BITS READ
+    irq set 1                      side 0
+    jmp sopt_wait_bit_start        side 0
+
+
+sopt_handle_bit:
+    nop                        [7] side 1
+    wait 0 pin 0                   side 0  ; wait for low
+    .wrap                                  ; wait for next pass through bit, reset pulse counter

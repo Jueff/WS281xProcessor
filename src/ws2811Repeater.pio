@@ -1,0 +1,56 @@
+.program ws2811Repeater
+;.side_set 1 opt
+
+; This is run from C to init number of bits to skip
+;    pull
+;   mov x osr
+;   mov isr x
+
+.wrap_target
+reset:
+PUBLIC wait_sideset_reset:
+    wait 1 gpio 29               ; wait for a raising edge - signaled from the receiver pio program
+    jmp pin bit_detected
+    jmp reset                    ; jump to start and continue waiting for first bit
+
+bit_detected:                    ; start transmission
+    mov x isr                    ; number of bits to skip
+PUBLIC num_bits_emulate:
+    set y 24                     ; number of bits to emulate for status led - is set by application to 0 or 24
+    pull                         ; get bits from TX fifo
+consume_bit:    
+    jmp !x push_bits;            ; x=0 means no more bits to skip -> push status or received bits
+    jmp x-- wait_next_bit [15]   ; otherwise decrease skip counter and wait for the next bit, 
+                                 ;wait some (15*2) cycles for operations to finish in other pio state machine
+push_bits:
+    jmp !y sopt_handle_bit
+    //250/1000 or 625/625    
+    set pins 1          [15]     ; 16*16ns = 256ns
+    out pins 1          [22]     ; 23*16ns = 368ns = total 625
+    set pins 0          
+    jmp y-- wait_next_bit
+
+sopt_handle_bit:                 ; mirror the waveform from input pin to output pin 
+    set pins 1                   ; set output high
+    wait 0 pin 0                 ; wait for input to go low
+    set pins 0                   ; set output low
+wait_next_bit:                   ; continue to wait for next bit (or reset)
+PUBLIC wait_sideset_bit:
+    wait 1 gpio 29               ; wait for a raising edge - signaled from the receiver pio program
+    jmp pin consume_bit          ; if input is high the next bit was detected, otherwise a reset occurred
+
+                                 ; we inform the hosting app about the number of bits still to be shifted out
+                                 ; because it may occur that number of bits to skip is more than number of
+                                 ; bits received in one cycle
+    mov    x, isr                ; save content of isr to x
+    mov    isr, y                ; move bits still to shift to isr
+    push   noblock               ; push the isr
+    mov    isr, x                ; restore isr from x
+    jmp !y reset                 ; if no more bits to shift out we are done, wait for next cycle
+
+//send_bit:                        ; shift out the status led content 
+    //set pins 1          [15]     ; 16*16ns = 256ns
+    //out pins 1          [22]     ; 23*16ns = 368ns = total 624ns
+    //set pins 0          [30]
+    //jmp y-- send_bit    [7]      ; (31+8)*16ns = 624ns = 1,248us 
+    .wrap

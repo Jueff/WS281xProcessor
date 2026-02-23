@@ -1,0 +1,33 @@
+.program ws2811Status
+;.side_set 1 opt
+
+; This is run from C
+; set y 20
+; mov osr y
+; out null 5 ; osr = 20 * 2^5 = 640 -> 640*2*8ns = 10240ns
+
+.wrap_target
+start:
+    set x 24
+    pull
+send_bit:   
+     // 0,35us high
+    set pins 1          [30]
+    nop                 [9]           ; (31+10)*8ns = 328ns
+    out pins 1          [30]
+    //set pins 1          [30]
+    nop                 [9]           ; (31+10)*8ns = 328ns
+    set pins 0          [30]
+    nop                 [30]         
+    nop                 [12]          ; (31+31+13)*8ns = 600ns
+    jmp x-- send_bit
+
+    set y 20
+    mov osr y
+    out null 10
+    mov y osr
+delay:
+    jmp y-- delay   
+    jmp start  
+    .wrap
+
