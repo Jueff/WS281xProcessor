@@ -1,7 +1,7 @@
 ; compile e.g. with https://wokwi.com/tools/pioasm
 
 
-.program ws2811Receiver
+.program ws281xReceiver
 .side_set 1 opt
 
 ; This is run from C

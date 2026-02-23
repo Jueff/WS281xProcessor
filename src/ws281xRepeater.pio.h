@@ -9,17 +9,17 @@
 #endif
 
 // -------------- //
-// ws2811Repeater //
+// ws281xRepeater //
 // -------------- //
 
-#define ws2811Repeater_wrap_target 0
-#define ws2811Repeater_wrap 22
+#define ws281xRepeater_wrap_target 0
+#define ws281xRepeater_wrap 22
 
-#define ws2811Repeater_offset_wait_sideset_reset 0u
-#define ws2811Repeater_offset_num_bits_emulate 4u
-#define ws2811Repeater_offset_wait_sideset_bit 16u
+#define ws281xRepeater_offset_wait_sideset_reset 0u
+#define ws281xRepeater_offset_num_bits_emulate 4u
+#define ws281xRepeater_offset_wait_sideset_bit 16u
 
-static const uint16_t ws2811Repeater_program_instructions[] = {
+static const uint16_t ws281xRepeater_program_instructions[] = {
             //     .wrap_target
     0x209d, //  0: wait   1 gpio, 29                 
     0x00c3, //  1: jmp    pin, 3                     
@@ -48,15 +48,15 @@ static const uint16_t ws2811Repeater_program_instructions[] = {
 };
 
 #if !PICO_NO_HARDWARE
-static const struct pio_program ws2811Repeater_program = {
-    .instructions = ws2811Repeater_program_instructions,
+static const struct pio_program ws281xRepeater_program = {
+    .instructions = ws281xRepeater_program_instructions,
     .length = 23,
     .origin = -1,
 };
 
-static inline pio_sm_config ws2811Repeater_program_get_default_config(uint offset) {
+static inline pio_sm_config ws281xRepeater_program_get_default_config(uint offset) {
     pio_sm_config c = pio_get_default_sm_config();
-    sm_config_set_wrap(&c, offset + ws2811Repeater_wrap_target, offset + ws2811Repeater_wrap);
+    sm_config_set_wrap(&c, offset + ws281xRepeater_wrap_target, offset + ws281xRepeater_wrap);
     return c;
 }
 #endif

@@ -9,18 +9,18 @@
 #endif
 
 // -------------- //
-// ws2811Receiver //
+// ws281xReceiver //
 // -------------- //
 
-#define ws2811Receiver_wrap_target 0
-#define ws2811Receiver_wrap 30
+#define ws281xReceiver_wrap_target 0
+#define ws281xReceiver_wrap 30
 
-#define ws2811Receiver_offset_num_bits_const_1 3u
-#define ws2811Receiver_offset_num_bits_shift_1 5u
-#define ws2811Receiver_offset_num_bits_const_2 12u
-#define ws2811Receiver_offset_num_bits_shift_2 14u
+#define ws281xReceiver_offset_num_bits_const_1 3u
+#define ws281xReceiver_offset_num_bits_shift_1 5u
+#define ws281xReceiver_offset_num_bits_const_2 12u
+#define ws281xReceiver_offset_num_bits_shift_2 14u
 
-static const uint16_t ws2811Receiver_program_instructions[] = {
+static const uint16_t ws281xReceiver_program_instructions[] = {
             //     .wrap_target
     0xb047, //  0: mov    y, osr          side 0     
     0x10dd, //  1: jmp    pin, 29         side 0     
@@ -57,15 +57,15 @@ static const uint16_t ws2811Receiver_program_instructions[] = {
 };
 
 #if !PICO_NO_HARDWARE
-static const struct pio_program ws2811Receiver_program = {
-    .instructions = ws2811Receiver_program_instructions,
+static const struct pio_program ws281xReceiver_program = {
+    .instructions = ws281xReceiver_program_instructions,
     .length = 31,
     .origin = -1,
 };
 
-static inline pio_sm_config ws2811Receiver_program_get_default_config(uint offset) {
+static inline pio_sm_config ws281xReceiver_program_get_default_config(uint offset) {
     pio_sm_config c = pio_get_default_sm_config();
-    sm_config_set_wrap(&c, offset + ws2811Receiver_wrap_target, offset + ws2811Receiver_wrap);
+    sm_config_set_wrap(&c, offset + ws281xReceiver_wrap_target, offset + ws281xReceiver_wrap);
     sm_config_set_sideset(&c, 2, true, false);
     return c;
 }

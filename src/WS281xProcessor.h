@@ -1,3 +1,3 @@
 #pragma once
 
-#include "ws2811Processor.hpp"
+#include "ws281xProcessor.hpp"

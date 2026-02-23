@@ -1,4 +1,4 @@
-.program ws2811Repeater
+.program ws281xRepeater
 ;.side_set 1 opt
 
 ; This is run from C to init number of bits to skip
