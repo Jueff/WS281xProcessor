@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <array>
 #include <cmath>
+#include <functional>
 
 #include "hardware/pio.h"
 #include "hardware/clocks.h"
@@ -55,6 +56,10 @@ private:
   uint8_t ledsToRead = 0;
   WS281xColorMapping color_mapping;
   bool statusLEDActive;
+
+  std::function<void()> dataReceivedCallback;
+  std::function<void()> receiveErrorCallback;
+
 
   inline void init_receiverGPIO(uint8_t dataInPin, uint8_t sidesetPin) {
     pio_sm_set_consecutive_pindirs(pio1, sm_receiver, dataInPin, 1, GPIO_IN);
@@ -341,6 +346,27 @@ public:
     }
     return result;
   }
+
+  void registerDataReceivedCallback(std::function<void()> cb) 
+  {
+    dataReceivedCallback = cb;
+  }
+
+  void registerReceiveErrorCallback(std::function<void()> cb)
+  {
+    receiveErrorCallback = cb;
+  }
+
+  void notifyDataReceived()
+  {
+    if (dataReceivedCallback) dataReceivedCallback();
+  } 
+
+  void notifyReceiveError()
+  {
+    if (receiveErrorCallback) receiveErrorCallback();
+  } 
+
   
   static constexpr const uint shift(const uint val) 
   {
@@ -471,15 +497,24 @@ void ws281xReceiver_pio1_irq0_handler()
   {
     if (pio_interrupt_get(pio1, 3))   // at least one bit received
     {
-      if (ws281xProcessor_instance !=NULL) ((WS281xProcessor*)ws281xProcessor_instance)->reset();
+      auto proc = (WS281xProcessor*)ws281xProcessor_instance;
+      if (proc != NULL)
+      {
+        proc->reset();
+        proc->notifyReceiveError();
+      }
       WS281xProcessor_ReceiveError();
-      Serial.print("?");
     }
   }
   else if (pio_interrupt_get(pio1, 1)) 
   {
     // reset the buffer received flag
-    if (ws281xProcessor_instance !=NULL) ((WS281xProcessor*)ws281xProcessor_instance)->startGatherDma();
+    auto proc = (WS281xProcessor*)ws281xProcessor_instance;
+    if (proc != NULL)
+    {
+      proc->startGatherDma();
+      proc->notifyDataReceived();
+    }
     WS281xProcessor_DataReceived();
   }
   
