@@ -55,10 +55,10 @@ push_remaining_bits_loop:
 
 consume_handle_bit:
     ;irq set 3                      side 0    
-    set y 5                    [7] side 1  ; 8 cycles
+    set y 4                    [7] side 1  ; 8 cycles
 delay_loop:                                ; + 6*(
     nop                        [4] side 0  ;     5 cycles
-    jmp y-- delay_loop         [3] side 0  ;   + 4 cycles) = 60 cycles -> 60*8ns = 480ns
+    jmp y-- delay_loop         [3] side 0  ;   + 4 cycles) = 51 cycles -> 60*8ns = 408ns
     
     ; now check if this is a 1 or 0 bit
     in pins 1                      side 0  ; shift 1 or 0 into result

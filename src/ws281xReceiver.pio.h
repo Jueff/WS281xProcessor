@@ -43,7 +43,7 @@ static const uint16_t ws281xReceiver_program_instructions[] = {
     0x1003, // 18: jmp    3               side 0     
     0xd002, // 19: irq    nowait 2        side 0     
     0x1003, // 20: jmp    3               side 0     
-    0xff45, // 21: set    y, 5            side 1 [7] 
+    0xff44, // 21: set    y, 4            side 1 [7] 
     0xb442, // 22: nop                    side 0 [4] 
     0x1396, // 23: jmp    y--, 22         side 0 [3] 
     0x5001, // 24: in     pins, 1         side 0     
