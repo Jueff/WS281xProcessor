@@ -1,3 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 Juergen Winkler <MobaLedLib@gmx.at>
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * WS281xBase: Base class providing utility functions and data structures for WS281x LED color processing.
+ * It includes an enum for color mapping (RGB or GRB), a union for representing RGB LED colors,
+ * and static methods for mathematical operations like fract and mix, as well as HSV to RGB conversion.
+*/
+
 #include "WS281xBase.h"
 #include <cmath>
 #include <Arduino.h>

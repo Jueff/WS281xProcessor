@@ -1,3 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 Juergen Winkler <MobaLedLib@gmx.at>
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * WS2812Sender: Class for sending WS2812 LED data using PIO on RP2040 microcontrollers.
+ * It initializes a PIO state machine to output LED signals on a specified pin and provides
+ * methods to set the color of a status LED in RGB or HSV formats.
+*/
+
 #include "WS2812Sender.h"
 #include "hardware/pio.h"
 #include "hardware/clocks.h"

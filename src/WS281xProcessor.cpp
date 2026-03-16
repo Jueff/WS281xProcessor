@@ -1,3 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 Juergen Winkler <MobaLedLib@gmx.at>
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * WS281xProcessor: Class for processing WS281x LED signals on RP2040 microcontrollers.
+ * It handles signal reception and repetition using PIO state machines, manages DMA transfers
+ * for efficient data gathering, and provides callback mechanisms for data reception and error handling.
+*/
+
 #include <stdio.h>
 #include <array>
 #include <cmath>
@@ -10,7 +19,7 @@
 #include "ws281xRepeater.pio.h"
 #include "WS2812Sender.h"
 #include "rp2040_pio.h"
-#include <arduino.h>
+#include <Arduino.h>
 
 // Globale Variablen
 void* ws281xProcessor_instance = NULL;

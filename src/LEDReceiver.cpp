@@ -1,3 +1,14 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 Juergen Winkler <MobaLedLib@gmx.at>
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * LEDReceiver: This class handles the reception and processing of LED data from WS281x signals.
+ * It manages the connection state (Online, Offline, Error, DataMissing, Unknown), detects data changes,
+ * and provides methods to access the current state and check for data updates. The class uses a
+ * WS281xProcessor instance for low-level signal processing and includes mechanisms for reconnection
+ * and error handling.
+*/
+
 #include <Arduino.h>
 #include "LEDReceiver.h"
 #include "WS281xProcessor.h"

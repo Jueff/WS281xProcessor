@@ -1,5 +1,11 @@
+; SPDX-FileCopyrightText: 2025-2026 Juergen Winkler <MobaLedLib@gmx.at>
+; SPDX-License-Identifier: CC-BY-NC-4.0
 ; compile e.g. with https://wokwi.com/tools/pioasm
-
+;
+; ws281xReceiver: PIO program for receiving WS281x LED signals on RP2040.
+; It monitors the input pin for signal edges, samples bit timings to decode 0s and 1s,
+; handles reset conditions, and triggers interrupts to signal data reception or errors
+; to the host application.
 
 .program ws281xReceiver
 .side_set 1 opt

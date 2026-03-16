@@ -1,4 +1,14 @@
+; SPDX-FileCopyrightText: 2025-2026 Juergen Winkler <MobaLedLib@gmx.at>
+; SPDX-License-Identifier: CC-BY-NC-4.0
+;
+; ws281xRepeater: PIO program for repeating WS281x LED signals on RP2040.
+; It receives WS281x data on an input pin, skips a specified number of initial LED bits,
+; optionally emulates a status LED, and outputs the signal on an output pin.
+; Synchronization is handled via a sideset pin for bit detection and reset.
+
 .program ws281xRepeater
+
+
 ;.side_set 1 opt
 
 ; This is run from C to init number of bits to skip
