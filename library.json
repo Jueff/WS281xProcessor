@@ -1,0 +1,22 @@
+{
+  "name": "WS281xProcessor",
+  "version": "0.1.2",
+  "description": "Library allows processing of WS2812 protocol",
+  "keywords": "ws2812, led, rp2040",
+  "authors": [
+    {
+      "name": "Jueff",
+      "email": "mobaledlib@gmx.at",
+      "maintainer": true
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jueff/WS281xProcessor.git"
+  },
+  "homepage": "https://github.com/Jueff/WS281xProcessor#readme",
+  "frameworks": "*",
+  "platforms": ["raspberrypi"],
+  "headers": ["WS281xProcessor.h"],
+  "exclude": [ "compile.cmd", ".git", ".vs", "src\\.vs" ]
+}
