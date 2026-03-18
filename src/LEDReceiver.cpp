@@ -78,7 +78,7 @@ void LEDReceiver::loop()
 {
     if (errorDetected) 
     {
-        Serial.println("*** errorDetected ***");
+        // Serial.println("*** errorDetected ***");
         errorDetected = false;
         state = State::Error;
     }
@@ -94,7 +94,7 @@ void LEDReceiver::loop()
     }
     else if (pWs281xProcessor->notEnoughData()) 
     {
-        Serial.println("*** notEnoughData ***");
+        // Serial.println("*** notEnoughData ***");
         isOnline = false;
         if (state != State::DataMissing)
         {
@@ -147,7 +147,6 @@ void LEDReceiver::loop()
                 if (!dataSame) 
                 {
                     memcpy(ledDataPrevious, ledData, ledDataLen);
-                    DebugOutputLedData();
                     dataChanged = true;
                     dataChangedMillis = millis();
                 }
