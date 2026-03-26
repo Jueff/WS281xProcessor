@@ -13,17 +13,23 @@
 #include "LEDReceiver.h"
 #include "WS281xProcessor.h"
 
-LEDReceiver::LEDReceiver(uint8_t* ledData, uint8_t numLedsToEmulate, uint8_t numLedsToSkip, uint8_t dataInPin, uint8_t dataOutPin)
+LEDReceiver::LEDReceiver(uint8_t* ledData, uint8_t ledsToRead, uint8_t ledsToSkip, uint8_t dataInPin, uint8_t dataOutPin)
+    : LEDReceiver(ledData, ledsToRead, ledsToSkip, dataInPin, dataOutPin, true)
+{
+}
+
+LEDReceiver::LEDReceiver(uint8_t* ledData, uint8_t ledsToRead, uint8_t ledsToSkip, uint8_t dataInPin, uint8_t dataOutPin, bool statusLEDActive)
     : ledData(ledData)
 {
-    ledDataLen = numLedsToEmulate * 3;
+    ledDataLen = ledsToRead * 3;
     ledDataPrevious = (uint8_t*)malloc(ledDataLen);
     memset(ledDataPrevious, 0, ledDataLen);
 
-    ledDataReceived = (WS281xBase::RGBLED*)malloc(numLedsToEmulate);
+    ledDataReceived = (WS281xBase::RGBLED*)malloc(ledsToRead);
 
     state = State::Unknown;
     defaultReconnectCycles = DEFAULT_RECONNECT_CYCLES;
+    noDataTimeout = DEFAULT_NODATA_TIMEOUT;
 
     isOnline = false;
     dataChanged = false;
@@ -33,7 +39,7 @@ LEDReceiver::LEDReceiver(uint8_t* ledData, uint8_t numLedsToEmulate, uint8_t num
     pWs281xProcessor = new WS281xProcessor();
     pWs281xProcessor->registerReceiveErrorCallback([this]() { this->WS281xProcessor_ReceiveError(); });
     pWs281xProcessor->registerDataReceivedCallback([this]() { this->WS281xProcessor_DataReceived(); });
-    pWs281xProcessor->init(dataInPin, DEFAULT_SIDESET_PIN, dataOutPin, numLedsToEmulate, numLedsToSkip, WS281xBase::GRB, true);
+    pWs281xProcessor->init(dataInPin, DEFAULT_SIDESET_PIN, dataOutPin, ledsToRead, ledsToSkip, WS281xBase::GRB, statusLEDActive);
 }
 
 LEDReceiver::~LEDReceiver()
@@ -62,6 +68,11 @@ void LEDReceiver::setReconnectCycles(uint8_t value)
     defaultReconnectCycles = value;
 }
 
+void LEDReceiver::setNoDataTimeout(uint value)
+{
+    noDataTimeout = value;
+}
+
 LEDReceiver::State LEDReceiver::getState() const
 {
     return state;
@@ -82,7 +93,7 @@ void LEDReceiver::loop()
         errorDetected = false;
         state = State::Error;
     }
-    if ((millis() - lastDataMillis) > 500) 
+    if (noDataTimeout!=0 && (millis() - lastDataMillis) >= noDataTimeout) 
     {
         auto newStatus = errorDetected ? State::Error : State::Offline;
         if (state != newStatus)
@@ -101,8 +112,6 @@ void LEDReceiver::loop()
             state = State::DataMissing;
         }
     }
-    pWs281xProcessor->setRepeaterLEDColor(ledData[0], ledData[1], ledData[2]); //TODO
-
     
     pWs281xProcessor->getLEDs(ledDataReceived);
     if (dataAvailable && !errorDetected) 
@@ -143,6 +152,8 @@ void LEDReceiver::loop()
                 if (state != State::Online) 
                 {
                     state = State::Online;
+                    // initially signal changed data after reconnect
+                    dataSame = false;   
                 }
                 if (!dataSame) 
                 {
@@ -155,9 +166,19 @@ void LEDReceiver::loop()
     }
 }
 
+void LEDReceiver::setRepeaterLEDHSV(uint8_t hue, uint8_t sat, uint8_t bright)
+{
+  pWs281xProcessor->setRepeaterLEDHSV(hue, sat, bright);
+}
+
+void LEDReceiver::setRepeaterLEDColor(uint8_t r, uint8_t g, uint8_t b)
+{
+  pWs281xProcessor->setRepeaterLEDColor(r, g, b);
+}
+
 void LEDReceiver::DebugOutputLedData()
 {
-    Serial.print(" LED DATA: ");
+    Serial.print("LED DATA: ");
     for (int i = 0; i < ledDataLen; i++)
     {
         Serial.printf("%2x ", ledData[i]);
@@ -175,3 +196,5 @@ void LEDReceiver::WS281xProcessor_DataReceived()
     dataAvailable = true;
     dataReceivedMillis = millis();
 }
+
+
