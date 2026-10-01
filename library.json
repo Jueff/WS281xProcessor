@@ -1,6 +1,6 @@
 {
   "name": "WS281xProcessor",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Library allows processing of WS281x protocol",
   "keywords": "ws2812, led, rp2040",
   "authors": [

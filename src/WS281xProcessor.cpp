@@ -379,21 +379,6 @@ void WS281xProcessor::runSM(uint8_t dataInPin)
   pio_sm_exec_wait_blocking(pio1, sm_receiver, pio_encode_mov(pio_osr, pio_y));
   pio_sm_exec_wait_blocking(pio1, sm_receiver, pio_encode_out(pio_null, 5));
 
-  bool reset_finished = false;
-  while (!reset_finished) {
-    while (gpio_get(dataInPin))
-      ;
-
-    const auto us = time_us_32();
-    reset_finished = true;
-    while (time_us_32() - us < 10) {
-      if (gpio_get(dataInPin)) {
-        reset_finished = false;
-        break;
-      }
-      tight_loop_contents();
-    }
-  }
   pio_sm_set_enabled(pio1, sm_receiver, true);
 }
 
